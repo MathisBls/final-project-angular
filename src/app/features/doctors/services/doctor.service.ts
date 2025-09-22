@@ -278,6 +278,28 @@ export class DoctorService {
       }),
     );
 
+    // Mettre à jour aussi dans localStorage si c'est une mise à jour de l'utilisateur
+    if (updates.user) {
+      try {
+        const savedUsers = localStorage.getItem('doctolib_users');
+        if (savedUsers) {
+          const users = JSON.parse(savedUsers);
+          const userIndex = users.findIndex(
+            (u: User) => u.id === updates.user!.id,
+          );
+          if (userIndex !== -1) {
+            users[userIndex] = { ...users[userIndex], ...updates.user };
+            localStorage.setItem('doctolib_users', JSON.stringify(users));
+          }
+        }
+      } catch (error) {
+        console.error(
+          'Erreur lors de la mise à jour dans localStorage:',
+          error,
+        );
+      }
+    }
+
     this.saveDoctorsToStorage();
     return updatedDoctor;
   }

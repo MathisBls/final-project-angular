@@ -1,62 +1,21 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import {
   Patient,
   MedicalRecord,
   CreatePatientRequest,
 } from '../models/patient.model';
+import { AppointmentService } from '../../appointments/services/appointment.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { User } from '../../auth/models/user.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PatientService {
-  private patients = signal<Patient[]>([
-    {
-      id: 1,
-      userId: 3,
-      user: {
-        id: 3,
-        email: 'patient@doctolib.com',
-        password: 'patient123',
-        firstName: 'Marie',
-        lastName: 'Dubois',
-        phone: '+33123456791',
-        role: 'patient',
-        isActive: true,
-        createdAt: new Date('2024-01-03'),
-        updatedAt: new Date('2024-01-03'),
-      },
-      dateOfBirth: new Date('1985-06-15'),
-      gender: 'female',
-      address: {
-        street: '123 Rue de la Paix',
-        city: 'Paris',
-        postalCode: '75001',
-        country: 'France',
-      },
-      emergencyContact: {
-        name: 'Pierre Dubois',
-        phone: '+33123456792',
-        relationship: 'Époux',
-      },
-      medicalHistory: [
-        {
-          id: 1,
-          patientId: 1,
-          doctorId: 1,
-          doctorName: 'Dr. Jean Martin',
-          date: new Date('2024-01-10'),
-          diagnosis: 'Hypertension artérielle',
-          treatment: 'Traitement antihypertenseur',
-          notes: 'Surveillance mensuelle recommandée',
-        },
-      ],
-      allergies: ['Pénicilline', 'Pollen'],
-      currentMedications: ['Amlodipine 5mg'],
-      insuranceNumber: '1234567890123',
-      createdAt: new Date('2024-01-03'),
-      updatedAt: new Date('2024-01-03'),
-    },
-  ]);
+  private appointmentService = inject(AppointmentService);
+  private authService = inject(AuthService);
+
+  private patients = signal<Patient[]>([]);
 
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -64,7 +23,61 @@ export class PatientService {
 
   async getAllPatients(): Promise<Patient[]> {
     await this.delay(300);
-    return this.patients();
+
+    try {
+      const appointments = await this.appointmentService.getAllAppointments();
+      const allUsers = await this.authService.getAllUsers();
+
+      // Récupérer tous les patients uniques depuis les rendez-vous
+      const patientMap = new Map<number, Patient>();
+
+      appointments.forEach((appointment) => {
+        if (!patientMap.has(appointment.patientId)) {
+          patientMap.set(appointment.patientId, appointment.patient);
+        }
+      });
+
+      // Ajouter aussi les utilisateurs avec le rôle 'patient' qui n'ont pas encore de rendez-vous
+      const patientUsers = allUsers.filter((user) => user.role === 'patient');
+
+      patientUsers.forEach((user) => {
+        if (!patientMap.has(user.id)) {
+          // Créer un profil patient basique pour les utilisateurs sans rendez-vous
+          const basicPatient: Patient = {
+            id: user.id,
+            userId: user.id,
+            user: user,
+            dateOfBirth: new Date('1990-01-01'), // Date par défaut
+            gender: 'other',
+            address: {
+              street: 'Non renseigné',
+              city: 'Non renseigné',
+              postalCode: '00000',
+              country: 'France',
+            },
+            emergencyContact: {
+              name: 'Non renseigné',
+              phone: 'Non renseigné',
+              relationship: 'Non renseigné',
+            },
+            medicalHistory: [],
+            allergies: [],
+            currentMedications: [],
+            insuranceNumber: 'Non renseigné',
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+          };
+          patientMap.set(user.id, basicPatient);
+        }
+      });
+
+      const patients = Array.from(patientMap.values());
+      this.patients.set(patients);
+      return patients;
+    } catch (error) {
+      console.error('Erreur lors du chargement des patients:', error);
+      return [];
+    }
   }
 
   async getPatientById(id: number): Promise<Patient | undefined> {
@@ -131,6 +144,26 @@ export class PatientService {
         return patient;
       }),
     );
+
+    // Mettre à jour aussi dans localStorage si c'est une mise à jour de l'utilisateur
+    if (updates.user) {
+      try {
+        const savedUsers = localStorage.getItem('doctolib_users');
+        if (savedUsers) {
+          const users = JSON.parse(savedUsers);
+          const userIndex = users.findIndex((u: User) => u.id === id);
+          if (userIndex !== -1) {
+            users[userIndex] = { ...users[userIndex], ...updates.user };
+            localStorage.setItem('doctolib_users', JSON.stringify(users));
+          }
+        }
+      } catch (error) {
+        console.error(
+          'Erreur lors de la mise à jour dans localStorage:',
+          error,
+        );
+      }
+    }
 
     return updatedPatient;
   }

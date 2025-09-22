@@ -111,37 +111,37 @@ import { Doctor } from '../../../doctors/models/doctor.model';
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span
                           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          [class.bg-green-100]="doctor.isAvailable"
-                          [class.text-green-800]="doctor.isAvailable"
-                          [class.bg-red-100]="!doctor.isAvailable"
-                          [class.text-red-800]="!doctor.isAvailable"
+                          [class.bg-green-100]="doctor.user.isActive"
+                          [class.text-green-800]="doctor.user.isActive"
+                          [class.bg-red-100]="!doctor.user.isActive"
+                          [class.text-red-800]="!doctor.user.isActive"
                         >
-                          {{
-                            doctor.isAvailable ? 'Disponible' : 'Indisponible'
-                          }}
+                          {{ doctor.user.isActive ? 'Actif' : 'Inactif' }}
                         </span>
                       </td>
                       <td
                         class="px-6 py-4 whitespace-nowrap text-sm font-medium"
                       >
                         <div class="flex space-x-2">
-                          <a
-                            [routerLink]="['/doctors', doctor.id]"
-                            class="text-blue-600 hover:text-blue-900"
-                          >
-                            Voir
-                          </a>
                           <button
-                            (click)="toggleAvailability(doctor)"
-                            class="text-yellow-600 hover:text-yellow-900"
+                            (click)="viewDoctorProfile(doctor.id)"
+                            class="px-3 py-1 rounded-md text-sm font-medium transition-colors bg-blue-100 text-blue-800 hover:bg-blue-200"
                           >
-                            {{ doctor.isAvailable ? 'Désactiver' : 'Activer' }}
+                            Voir profil
                           </button>
                           <button
-                            (click)="deleteDoctor(doctor.id)"
-                            class="text-red-600 hover:text-red-900"
+                            (click)="toggleDoctorStatus(doctor.id)"
+                            class="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                            [class.bg-red-100]="doctor.user.isActive"
+                            [class.text-red-800]="doctor.user.isActive"
+                            [class.hover:bg-red-200]="doctor.user.isActive"
+                            [class.bg-green-100]="!doctor.user.isActive"
+                            [class.text-green-800]="!doctor.user.isActive"
+                            [class.hover:bg-green-200]="!doctor.user.isActive"
                           >
-                            Supprimer
+                            {{
+                              doctor.user.isActive ? 'Désactiver' : 'Activer'
+                            }}
                           </button>
                         </div>
                       </td>
@@ -211,25 +211,42 @@ export class DoctorManagementComponent implements OnInit {
     }
   }
 
-  async toggleAvailability(doctor: Doctor) {
-    try {
-      await this.doctorService.updateDoctor(doctor.id, {
-        isAvailable: !doctor.isAvailable,
-      });
-      this.loadDoctors();
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du statut:', error);
-    }
+  viewDoctorProfile(doctorId: number) {
+    console.log('Voir profil du médecin:', doctorId);
+    // TODO: Implémenter la navigation vers le profil du médecin
+    // Pour l'instant, on peut rediriger vers la page de détail du médecin
+    window.open(`/doctors/${doctorId}`, '_blank');
   }
 
-  async deleteDoctor(doctorId: number) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce médecin ?')) {
-      try {
-        await this.doctorService.deleteDoctor(doctorId);
-        this.loadDoctors();
-      } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
+  async toggleDoctorStatus(doctorId: number) {
+    try {
+      const doctor = this.doctors().find((d) => d.id === doctorId);
+      if (doctor) {
+        const newStatus = !doctor.user.isActive;
+
+        await this.doctorService.updateDoctor(doctorId, {
+          user: {
+            ...doctor.user,
+            isActive: newStatus,
+          },
+        });
+
+        // Mettre à jour immédiatement l'affichage
+        this.doctors.update((doctors) =>
+          doctors.map((d) =>
+            d.id === doctorId
+              ? { ...d, user: { ...d.user, isActive: newStatus } }
+              : d,
+          ),
+        );
+
+        console.log(
+          `Médecin ${doctor.user.firstName} ${doctor.user.lastName} ${newStatus ? 'activé' : 'désactivé'} avec succès`,
+        );
       }
+    } catch (error) {
+      console.error('Erreur lors du changement de statut:', error);
+      alert('Erreur lors du changement de statut du médecin');
     }
   }
 }
