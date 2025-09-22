@@ -2,11 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../features/auth/services/auth.service';
+import { NavigationService } from '../../services/navigation.service';
+import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, BreadcrumbsComponent],
   template: `
     <header class="bg-blue-600 text-white shadow-lg">
       <div class="container mx-auto px-4 py-4">
@@ -24,28 +26,28 @@ import { AuthService } from '../../../features/auth/services/auth.service';
             <!-- Navigation publique -->
             <a
               routerLink="/doctors"
-              class="hover:text-blue-200 transition-colors"
+              class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+              [class.bg-blue-700]="isActiveRoute('/doctors')"
+              [class.text-blue-100]="isActiveRoute('/doctors')"
             >
               Médecins
             </a>
             <a
               routerLink="/specialities"
-              class="hover:text-blue-200 transition-colors"
+              class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+              [class.bg-blue-700]="isActiveRoute('/specialities')"
+              [class.text-blue-100]="isActiveRoute('/specialities')"
             >
               Spécialités
-            </a>
-            <a
-              routerLink="/about"
-              class="hover:text-blue-200 transition-colors"
-            >
-              À propos
             </a>
 
             @if (currentUser()) {
               <!-- Navigation pour utilisateur connecté -->
               <a
                 routerLink="/dashboard"
-                class="hover:text-blue-200 transition-colors"
+                class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+                [class.bg-blue-700]="isActiveRoute('/dashboard')"
+                [class.text-blue-100]="isActiveRoute('/dashboard')"
               >
                 Dashboard
               </a>
@@ -53,7 +55,9 @@ import { AuthService } from '../../../features/auth/services/auth.service';
               @if (currentUser()?.role === 'patient') {
                 <a
                   routerLink="/appointments"
-                  class="hover:text-blue-200 transition-colors"
+                  class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+                  [class.bg-blue-700]="isActiveRoute('/appointments')"
+                  [class.text-blue-100]="isActiveRoute('/appointments')"
                 >
                   Mes Rendez-vous
                 </a>
@@ -62,13 +66,17 @@ import { AuthService } from '../../../features/auth/services/auth.service';
               @if (currentUser()?.role === 'doctor') {
                 <a
                   routerLink="/doctor/appointments"
-                  class="hover:text-blue-200 transition-colors"
+                  class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+                  [class.bg-blue-700]="isActiveRoute('/doctor/appointments')"
+                  [class.text-blue-100]="isActiveRoute('/doctor/appointments')"
                 >
                   Mes Patients
                 </a>
                 <a
                   routerLink="/doctor/schedule"
-                  class="hover:text-blue-200 transition-colors"
+                  class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+                  [class.bg-blue-700]="isActiveRoute('/doctor/schedule')"
+                  [class.text-blue-100]="isActiveRoute('/doctor/schedule')"
                 >
                   Planning
                 </a>
@@ -77,17 +85,17 @@ import { AuthService } from '../../../features/auth/services/auth.service';
               @if (currentUser()?.role === 'admin') {
                 <a
                   routerLink="/admin"
-                  class="hover:text-blue-200 transition-colors"
+                  class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+                  [class.bg-blue-700]="isActiveRoute('/admin')"
+                  [class.text-blue-100]="isActiveRoute('/admin')"
                 >
                   Administration
                 </a>
               }
 
               <!-- Menu utilisateur -->
-              <div class="relative group">
-                <button
-                  class="flex items-center space-x-2 hover:text-blue-200 transition-colors"
-                >
+              <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
                   <div
                     class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
                   >
@@ -96,45 +104,18 @@ import { AuthService } from '../../../features/auth/services/auth.service';
                       }}{{ currentUser()?.lastName?.charAt(0) }}
                     </span>
                   </div>
-                  <span
-                    >{{ currentUser()?.firstName }}
-                    {{ currentUser()?.lastName }}</span
-                  >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </button>
-
-                <!-- Dropdown menu -->
-                <div
-                  class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
-                >
-                  <div class="py-1">
-                    <a
-                      routerLink="/profile"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Mon Profil
-                    </a>
-                    <a
-                      routerLink="/settings"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Paramètres
-                    </a>
-                    <hr class="my-1" />
-                    <button
-                      (click)="logout()"
-                      class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      Déconnexion
-                    </button>
-                  </div>
+                  <span class="text-sm">
+                    {{ currentUser()?.firstName }} {{ currentUser()?.lastName }}
+                  </span>
                 </div>
+
+                <!-- Bouton de déconnexion visible -->
+                <button
+                  (click)="logout()"
+                  class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                >
+                  Déconnexion
+                </button>
               </div>
             } @else {
               <!-- Navigation pour utilisateur non connecté -->
@@ -193,12 +174,6 @@ import { AuthService } from '../../../features/auth/services/auth.service';
               >
                 Spécialités
               </a>
-              <a
-                routerLink="/about"
-                class="block py-2 hover:text-blue-200 transition-colors"
-              >
-                À propos
-              </a>
 
               @if (currentUser()) {
                 <hr class="my-2 border-blue-500" />
@@ -244,12 +219,14 @@ import { AuthService } from '../../../features/auth/services/auth.service';
                 >
                   Mon Profil
                 </a>
-                <button
-                  (click)="logout()"
-                  class="block w-full text-left py-2 text-red-300 hover:text-red-200 transition-colors"
-                >
-                  Déconnexion
-                </button>
+                <div class="pt-2">
+                  <button
+                    (click)="logout()"
+                    class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Déconnexion
+                  </button>
+                </div>
               } @else {
                 <hr class="my-2 border-blue-500" />
                 <a
@@ -268,6 +245,9 @@ import { AuthService } from '../../../features/auth/services/auth.service';
             </div>
           </div>
         }
+
+        <!-- Breadcrumbs -->
+        <app-breadcrumbs />
       </div>
     </header>
   `,
@@ -276,17 +256,22 @@ import { AuthService } from '../../../features/auth/services/auth.service';
 export class HeaderComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private navigationService = inject(NavigationService);
 
-  currentUser = this.authService.getCurrentUser;
+  currentUser = this.authService.currentUserSignal;
   showMobileMenu = signal(false);
 
   toggleMobileMenu() {
     this.showMobileMenu.update((show) => !show);
   }
 
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
+  async logout() {
+    await this.authService.logout();
+    this.router.navigate(['/doctors']);
     this.showMobileMenu.set(false);
+  }
+
+  isActiveRoute(route: string): boolean {
+    return this.navigationService.isActiveRoute(route);
   }
 }

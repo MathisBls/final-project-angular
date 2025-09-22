@@ -145,8 +145,39 @@ export class DoctorService {
     },
   ]);
 
+  constructor() {
+    this.loadDoctorsFromStorage();
+  }
+
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private loadDoctorsFromStorage() {
+    try {
+      const savedDoctors = localStorage.getItem('doctolib_doctors');
+      if (savedDoctors) {
+        const doctors = JSON.parse(savedDoctors);
+        this.doctors.set(doctors);
+      }
+    } catch (error) {
+      console.error(
+        'Erreur lors du chargement des médecins depuis localStorage:',
+        error,
+      );
+      localStorage.removeItem('doctolib_doctors');
+    }
+  }
+
+  private saveDoctorsToStorage() {
+    try {
+      localStorage.setItem('doctolib_doctors', JSON.stringify(this.doctors()));
+    } catch (error) {
+      console.error(
+        'Erreur lors de la sauvegarde des médecins dans localStorage:',
+        error,
+      );
+    }
   }
 
   async getAllDoctors(): Promise<Doctor[]> {
@@ -229,6 +260,7 @@ export class DoctorService {
     };
 
     this.doctors.update((doctors) => [...doctors, newDoctor]);
+    this.saveDoctorsToStorage();
     return newDoctor;
   }
 
@@ -253,6 +285,7 @@ export class DoctorService {
       }),
     );
 
+    this.saveDoctorsToStorage();
     return updatedDoctor;
   }
 
@@ -267,6 +300,7 @@ export class DoctorService {
       return filtered;
     });
 
+    this.saveDoctorsToStorage();
     return deleted;
   }
 

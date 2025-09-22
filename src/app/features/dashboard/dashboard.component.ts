@@ -646,7 +646,7 @@ export class DashboardComponent {
   private doctorService = inject(DoctorService);
   private appointmentService = inject(AppointmentService);
 
-  currentUser = this.authService.getCurrentUser;
+  currentUser = this.authService.currentUserSignal;
 
   // Données simulées pour le dashboard
   upcomingAppointments = signal(2);

@@ -51,9 +51,65 @@ export class AuthService {
   }
 
   constructor() {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      this.currentUser.set(JSON.parse(savedUser));
+    this.loadUsersFromStorage();
+    this.loadUserFromStorage();
+  }
+
+  private loadUsersFromStorage() {
+    try {
+      const savedUsers = localStorage.getItem('doctolib_users');
+      if (savedUsers) {
+        const users = JSON.parse(savedUsers);
+        this.users.set(users);
+      }
+    } catch (error) {
+      console.error(
+        'Erreur lors du chargement des utilisateurs depuis localStorage:',
+        error,
+      );
+      localStorage.removeItem('doctolib_users');
+    }
+  }
+
+  private loadUserFromStorage() {
+    try {
+      const savedUser = localStorage.getItem('doctolib_currentUser');
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        this.currentUser.set(user);
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors du chargement de l'utilisateur depuis localStorage:",
+        error,
+      );
+      localStorage.removeItem('doctolib_currentUser');
+    }
+  }
+
+  private saveUsersToStorage() {
+    try {
+      localStorage.setItem('doctolib_users', JSON.stringify(this.users()));
+    } catch (error) {
+      console.error(
+        'Erreur lors de la sauvegarde des utilisateurs dans localStorage:',
+        error,
+      );
+    }
+  }
+
+  private saveUserToStorage(user: User | null) {
+    try {
+      if (user) {
+        localStorage.setItem('doctolib_currentUser', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('doctolib_currentUser');
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors de la sauvegarde de l'utilisateur dans localStorage:",
+        error,
+      );
     }
   }
 
@@ -71,7 +127,7 @@ export class AuthService {
 
     if (user) {
       this.currentUser.set(user);
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      this.saveUserToStorage(user);
       return { success: true, user };
     } else {
       return { success: false, error: 'Email ou mot de passe incorrect' };
@@ -109,7 +165,8 @@ export class AuthService {
 
     this.users.update((users) => [...users, newUser]);
     this.currentUser.set(newUser);
-    localStorage.setItem('currentUser', JSON.stringify(newUser));
+    this.saveUsersToStorage();
+    this.saveUserToStorage(newUser);
 
     return { success: true, user: newUser };
   }
@@ -117,7 +174,7 @@ export class AuthService {
   async logout(): Promise<void> {
     await this.delay(200);
     this.currentUser.set(null);
-    localStorage.removeItem('currentUser');
+    this.saveUserToStorage(null);
   }
 
   isAuthenticated(): boolean {
@@ -126,6 +183,10 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUser();
+  }
+
+  get currentUserSignal() {
+    return this.currentUser;
   }
 
   isAdmin(): boolean {
@@ -172,7 +233,8 @@ export class AuthService {
     );
 
     this.currentUser.set(updatedUser);
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    this.saveUsersToStorage();
+    this.saveUserToStorage(updatedUser);
 
     return updatedUser;
   }
