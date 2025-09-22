@@ -6,6 +6,8 @@ import {
   AppointmentSlot,
   AppointmentFilters,
 } from '../models/appointment.model';
+import { User } from '../../auth/models/user.model';
+import { Doctor } from '../../doctors/models/doctor.model';
 
 @Injectable({
   providedIn: 'root',
@@ -282,22 +284,34 @@ export class AppointmentService {
   ): Promise<Appointment> {
     await this.delay(500);
 
+    // Récupérer les données réelles du patient et du médecin depuis localStorage
+    const savedUsers = localStorage.getItem('doctolib_users');
+    const savedDoctors = localStorage.getItem('doctolib_doctors');
+
+    if (!savedUsers || !savedDoctors) {
+      throw new Error('Données utilisateurs ou médecins non trouvées');
+    }
+
+    const users = JSON.parse(savedUsers);
+    const doctors = JSON.parse(savedDoctors);
+
+    const patientUser = users.find(
+      (u: User) => u.id === appointmentData.patientId,
+    );
+    const doctorData = doctors.find(
+      (d: Doctor) => d.id === appointmentData.doctorId,
+    );
+
+    if (!patientUser || !doctorData) {
+      throw new Error('Patient ou médecin non trouvé');
+    }
+
+    // Créer l'objet patient avec les données réelles
     const patient = {
       id: appointmentData.patientId,
-      userId: 3,
-      user: {
-        id: 3,
-        email: 'patient@doctolib.com',
-        password: 'patient123',
-        firstName: 'Marie',
-        lastName: 'Dubois',
-        phone: '+33123456791',
-        role: 'patient' as const,
-        isActive: true,
-        createdAt: new Date('2024-01-03'),
-        updatedAt: new Date('2024-01-03'),
-      },
-      dateOfBirth: new Date('1985-06-15'),
+      userId: patientUser.id,
+      user: patientUser,
+      dateOfBirth: new Date('1985-06-15'), // Valeur par défaut
       gender: 'female' as const,
       address: {
         street: '123 Rue de la Paix',
@@ -306,54 +320,15 @@ export class AppointmentService {
         country: 'France',
       },
       emergencyContact: {
-        name: 'Pierre Dubois',
-        phone: '+33123456792',
-        relationship: 'Époux',
+        name: "Contact d'urgence",
+        phone: '+33123456789',
+        relationship: 'Famille',
       },
       medicalHistory: [],
-      allergies: ['Pénicilline'],
+      allergies: [],
       currentMedications: [],
-      createdAt: new Date('2024-01-03'),
-      updatedAt: new Date('2024-01-03'),
-    };
-
-    const doctor = {
-      id: appointmentData.doctorId,
-      userId: 2,
-      user: {
-        id: 2,
-        email: 'dr.martin@doctolib.com',
-        password: 'doctor123',
-        firstName: 'Dr. Jean',
-        lastName: 'Martin',
-        phone: '+33123456790',
-        role: 'doctor' as const,
-        isActive: true,
-        createdAt: new Date('2024-01-02'),
-        updatedAt: new Date('2024-01-02'),
-      },
-      speciality: 'Cardiologie',
-      licenseNumber: 'CARD123456',
-      experience: 15,
-      consultationFee: 80,
-      rating: 4.8,
-      totalReviews: 127,
-      bio: 'Cardiologue expérimenté',
-      education: ['Université de Paris'],
-      languages: ['Français', 'Anglais'],
-      isAvailable: true,
-      workingHours: {
-        monday: [{ start: '09:00', end: '17:00', isAvailable: true }],
-        tuesday: [{ start: '09:00', end: '17:00', isAvailable: true }],
-        wednesday: [{ start: '09:00', end: '17:00', isAvailable: true }],
-        thursday: [{ start: '09:00', end: '17:00', isAvailable: true }],
-        friday: [{ start: '09:00', end: '17:00', isAvailable: true }],
-        saturday: [],
-        sunday: [],
-      },
-      availableSlots: [],
-      createdAt: new Date('2024-01-02'),
-      updatedAt: new Date('2024-01-02'),
+      createdAt: patientUser.createdAt,
+      updatedAt: patientUser.updatedAt,
     };
 
     const newAppointment: Appointment = {
@@ -361,7 +336,7 @@ export class AppointmentService {
       patientId: appointmentData.patientId,
       doctorId: appointmentData.doctorId,
       patient,
-      doctor,
+      doctor: doctorData,
       date: appointmentData.date,
       time: appointmentData.time,
       duration: appointmentData.duration,
