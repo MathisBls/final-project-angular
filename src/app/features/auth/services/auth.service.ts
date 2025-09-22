@@ -171,6 +171,41 @@ export class AuthService {
     return { success: true, user: newUser };
   }
 
+  async createUserWithoutLogin(
+    userData: RegisterRequest,
+  ): Promise<{ success: boolean; user?: User; error?: string }> {
+    await this.delay(600);
+
+    if (this.users().some((u) => u.email === userData.email)) {
+      return { success: false, error: 'Cet email est déjà utilisé' };
+    }
+
+    if (userData.password !== userData.confirmPassword) {
+      return {
+        success: false,
+        error: 'Les mots de passe ne correspondent pas',
+      };
+    }
+
+    const newUser: User = {
+      id: Date.now(),
+      email: userData.email,
+      password: userData.password,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      phone: userData.phone,
+      role: userData.role,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.users.update((users) => [...users, newUser]);
+    this.saveUsersToStorage();
+
+    return { success: true, user: newUser };
+  }
+
   async logout(): Promise<void> {
     await this.delay(200);
     this.currentUser.set(null);

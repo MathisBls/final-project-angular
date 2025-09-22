@@ -104,9 +104,12 @@ import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
                       }}{{ currentUser()?.lastName?.charAt(0) }}
                     </span>
                   </div>
-                  <span class="text-sm">
+                  <a
+                    routerLink="/profile"
+                    class="text-sm hover:text-blue-200 transition-colors cursor-pointer"
+                  >
                     {{ currentUser()?.firstName }} {{ currentUser()?.lastName }}
-                  </span>
+                  </a>
                 </div>
 
                 <!-- Bouton de déconnexion visible -->

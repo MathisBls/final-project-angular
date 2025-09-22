@@ -1,12 +1,13 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { DoctorService } from '../../services/doctor.service';
 import { Doctor } from '../../models/doctor.model';
 
 @Component({
   selector: 'app-doctor-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="min-h-screen bg-gray-50 py-8">
       <div class="container mx-auto px-4">
@@ -34,7 +35,12 @@ import { Doctor } from '../../models/doctor.model';
                   </div>
                   <div>
                     <h3 class="text-lg font-semibold text-gray-900">
-                      {{ doctor.user.firstName }} {{ doctor.user.lastName }}
+                      <a
+                        [routerLink]="['/doctors', doctor.id]"
+                        class="hover:text-blue-600 transition-colors"
+                      >
+                        {{ doctor.user.firstName }} {{ doctor.user.lastName }}
+                      </a>
                     </h3>
                     <p class="text-blue-600 font-medium">
                       {{ doctor.speciality }}
@@ -103,11 +109,12 @@ import { Doctor } from '../../models/doctor.model';
                   >
                     {{ doctor.isAvailable ? 'Disponible' : 'Indisponible' }}
                   </span>
-                  <button
-                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                  <a
+                    [routerLink]="['/doctors', doctor.id]"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium inline-block"
                   >
                     Voir le profil
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>

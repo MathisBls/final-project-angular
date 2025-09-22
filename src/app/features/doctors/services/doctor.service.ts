@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import {
   Doctor,
   Speciality,
@@ -6,11 +6,14 @@ import {
   CreateDoctorRequest,
   TimeSlot,
 } from '../models/doctor.model';
+import { AuthService } from '../../auth/services/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DoctorService {
+  private authService = inject(AuthService);
+
   private doctors = signal<Doctor[]>([
     {
       id: 1,
@@ -228,20 +231,28 @@ export class DoctorService {
   async createDoctor(doctorData: CreateDoctorRequest): Promise<Doctor> {
     await this.delay(500);
 
+    // Récupérer les informations utilisateur depuis le service auth
+    const allUsers = await this.authService.getAllUsers();
+    const user = allUsers.find((u) => u.id === doctorData.userId);
+
+    if (!user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+
     const newDoctor: Doctor = {
       id: Date.now(),
       userId: doctorData.userId,
       user: {
-        id: doctorData.userId,
-        email: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-        role: 'doctor',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        id: user.id,
+        email: user.email,
+        password: user.password,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
       speciality: doctorData.speciality,
       licenseNumber: doctorData.licenseNumber,

@@ -16,6 +16,13 @@ export const ADMIN_ROUTES: Routes = [
       ),
   },
   {
+    path: 'doctors/create',
+    loadComponent: () =>
+      import('./components/doctor-creation/doctor-creation.component').then(
+        (m) => m.DoctorCreationComponent,
+      ),
+  },
+  {
     path: 'patients',
     loadComponent: () =>
       import(

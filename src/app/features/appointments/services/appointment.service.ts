@@ -191,8 +191,42 @@ export class AppointmentService {
     },
   ]);
 
+  constructor() {
+    this.loadAppointmentsFromStorage();
+  }
+
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private loadAppointmentsFromStorage() {
+    try {
+      const savedAppointments = localStorage.getItem('doctolib_appointments');
+      if (savedAppointments) {
+        const appointments = JSON.parse(savedAppointments);
+        this.appointments.set(appointments);
+      }
+    } catch (error) {
+      console.error(
+        'Erreur lors du chargement des rendez-vous depuis localStorage:',
+        error,
+      );
+      localStorage.removeItem('doctolib_appointments');
+    }
+  }
+
+  private saveAppointmentsToStorage() {
+    try {
+      localStorage.setItem(
+        'doctolib_appointments',
+        JSON.stringify(this.appointments()),
+      );
+    } catch (error) {
+      console.error(
+        'Erreur lors de la sauvegarde des rendez-vous dans localStorage:',
+        error,
+      );
+    }
   }
 
   async getAllAppointments(): Promise<Appointment[]> {
@@ -345,6 +379,7 @@ export class AppointmentService {
       ...appointments,
       newAppointment,
     ]);
+    this.saveAppointmentsToStorage();
     return newAppointment;
   }
 
@@ -369,6 +404,7 @@ export class AppointmentService {
       }),
     );
 
+    this.saveAppointmentsToStorage();
     return updatedAppointment;
   }
 
@@ -385,6 +421,7 @@ export class AppointmentService {
       return filtered;
     });
 
+    this.saveAppointmentsToStorage();
     return deleted;
   }
 
