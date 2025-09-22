@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/services/auth.service';
 import { DoctorService } from '../doctors/services/doctor.service';
 import { AppointmentService } from '../appointments/services/appointment.service';
@@ -8,7 +9,7 @@ import { Appointment } from '../appointments/models/appointment.model';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="min-h-screen bg-gray-50 py-8">
       <div class="container mx-auto px-4">

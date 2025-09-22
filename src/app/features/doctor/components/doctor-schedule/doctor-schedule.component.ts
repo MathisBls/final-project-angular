@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { AppointmentService } from '../../../appointments/services/appointment.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { Appointment } from '../../../appointments/models/appointment.model';
@@ -14,7 +14,7 @@ interface DaySchedule {
 @Component({
   selector: 'app-doctor-schedule',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatePipe],
   template: `
     <div class="min-h-screen bg-gray-50 py-8">
       <div class="container mx-auto px-4">
@@ -333,23 +333,39 @@ export class DoctorScheduleComponent implements OnInit {
 
   appointments = signal<Appointment[]>([]);
   weekSchedule = signal<DaySchedule[]>([]);
-  currentWeekStart = signal<Date>(new Date());
+  currentWeekStart = signal<Date>(this.getWeekStart(new Date()));
   isLoading = signal(false);
 
   ngOnInit() {
     this.loadAppointments();
   }
 
+  private getWeekStart(date: Date): Date {
+    const weekStart = new Date(date);
+    const day = weekStart.getDay();
+    const diff = day === 0 ? -6 : 1 - day; // Lundi = début de semaine
+    weekStart.setDate(weekStart.getDate() + diff);
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart;
+  }
+
   async loadAppointments() {
     this.isLoading.set(true);
     try {
       const currentUser = this.authService.getCurrentUser();
-      if (currentUser) {
+      if (currentUser && currentUser.role === 'doctor') {
         const allAppointments =
           await this.appointmentService.getAllAppointments();
+
+        // Filtrer par l'ID du médecin (pas l'ID utilisateur)
         const doctorAppointments = allAppointments.filter(
-          (appointment) => appointment.doctorId === currentUser.id,
+          (appointment) => appointment.doctor.user.id === currentUser.id,
         );
+
+        console.log('Planning - Current user ID:', currentUser.id);
+        console.log('Planning - All appointments:', allAppointments);
+        console.log('Planning - Doctor appointments:', doctorAppointments);
+
         this.appointments.set(doctorAppointments);
         this.generateWeekSchedule();
       }
@@ -366,15 +382,32 @@ export class DoctorScheduleComponent implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    console.log('Generating schedule for week starting:', weekStart);
+    console.log('All appointments:', this.appointments());
+
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekStart);
       date.setDate(weekStart.getDate() + i);
+      date.setHours(0, 0, 0, 0);
 
       const dayAppointments = this.appointments().filter((appointment) => {
         const appointmentDate = new Date(appointment.date);
         appointmentDate.setHours(0, 0, 0, 0);
-        return appointmentDate.getTime() === date.getTime();
+
+        const isMatch = appointmentDate.getTime() === date.getTime();
+        if (isMatch) {
+          console.log(
+            `Found appointment for ${date.toDateString()}:`,
+            appointment,
+          );
+        }
+
+        return isMatch;
       });
+
+      console.log(
+        `Day ${date.toDateString()}: ${dayAppointments.length} appointments`,
+      );
 
       schedule.push({
         date,
@@ -390,15 +423,17 @@ export class DoctorScheduleComponent implements OnInit {
   }
 
   previousWeek() {
-    const newWeekStart = new Date(this.currentWeekStart());
-    newWeekStart.setDate(newWeekStart.getDate() - 7);
+    const currentStart = this.currentWeekStart();
+    const newWeekStart = new Date(currentStart);
+    newWeekStart.setDate(currentStart.getDate() - 7);
     this.currentWeekStart.set(newWeekStart);
     this.generateWeekSchedule();
   }
 
   nextWeek() {
-    const newWeekStart = new Date(this.currentWeekStart());
-    newWeekStart.setDate(newWeekStart.getDate() + 7);
+    const currentStart = this.currentWeekStart();
+    const newWeekStart = new Date(currentStart);
+    newWeekStart.setDate(currentStart.getDate() + 7);
     this.currentWeekStart.set(newWeekStart);
     this.generateWeekSchedule();
   }

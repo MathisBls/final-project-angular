@@ -301,7 +301,7 @@ export class DoctorPatientsComponent implements OnInit {
         const allAppointments =
           await this.appointmentService.getAllAppointments();
         const doctorAppointments = allAppointments.filter(
-          (appointment) => appointment.doctorId === currentUser.id,
+          (appointment) => appointment.doctor.user.id === currentUser.id,
         );
 
         // Grouper les rendez-vous par patient
