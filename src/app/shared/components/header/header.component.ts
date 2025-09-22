@@ -32,15 +32,6 @@ import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
             >
               Médecins
             </a>
-            <a
-              routerLink="/specialities"
-              class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
-              [class.bg-blue-700]="isActiveRoute('/specialities')"
-              [class.text-blue-100]="isActiveRoute('/specialities')"
-            >
-              Spécialités
-            </a>
-
             @if (currentUser()) {
               <!-- Navigation pour utilisateur connecté -->
               <a

@@ -350,7 +350,6 @@ export class DoctorCreationComponent {
       try {
         const formValue = this.doctorForm.value;
 
-        // Créer d'abord l'utilisateur sans se connecter
         const userResult = await this.authService.createUserWithoutLogin({
           email: formValue.email,
           password: formValue.password,
@@ -367,10 +366,9 @@ export class DoctorCreationComponent {
           );
         }
 
-        // Puis créer le profil docteur
         const doctorData: CreateDoctorRequest = {
           userId: userResult.user.id,
-          speciality: 'Médecine générale', // Spécialité par défaut
+          speciality: 'Médecine générale',
           licenseNumber: formValue.licenseNumber,
           experience: formValue.experience,
           consultationFee: formValue.consultationFee,
@@ -392,7 +390,6 @@ export class DoctorCreationComponent {
           },
         };
 
-        // Récupérer les données utilisateur depuis localStorage
         const savedUsers = localStorage.getItem('doctolib_users');
         if (!savedUsers) {
           throw new Error('Données utilisateurs non trouvées');
