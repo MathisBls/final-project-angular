@@ -70,6 +70,14 @@ import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
                   [class.bg-blue-700]="isActiveRoute('/doctor/appointments')"
                   [class.text-blue-100]="isActiveRoute('/doctor/appointments')"
                 >
+                  Mes Rendez-vous
+                </a>
+                <a
+                  routerLink="/doctor/patients"
+                  class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
+                  [class.bg-blue-700]="isActiveRoute('/doctor/patients')"
+                  [class.text-blue-100]="isActiveRoute('/doctor/patients')"
+                >
                   Mes Patients
                 </a>
                 <a
@@ -197,6 +205,12 @@ import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
                 @if (currentUser()?.role === 'doctor') {
                   <a
                     routerLink="/doctor/appointments"
+                    class="block py-2 hover:text-blue-200 transition-colors"
+                  >
+                    Mes Rendez-vous
+                  </a>
+                  <a
+                    routerLink="/doctor/patients"
                     class="block py-2 hover:text-blue-200 transition-colors"
                   >
                     Mes Patients

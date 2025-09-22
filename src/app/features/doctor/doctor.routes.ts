@@ -20,4 +20,11 @@ export const DOCTOR_ROUTES: Routes = [
         (m) => m.DoctorScheduleComponent,
       ),
   },
+  {
+    path: 'patients',
+    loadComponent: () =>
+      import('./components/doctor-patients/doctor-patients.component').then(
+        (m) => m.DoctorPatientsComponent,
+      ),
+  },
 ];

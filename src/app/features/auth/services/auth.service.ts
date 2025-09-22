@@ -1,10 +1,13 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { User, LoginRequest, RegisterRequest } from '../models/user.model';
+import { DoctorService } from '../../doctors/services/doctor.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private doctorService = inject(DoctorService);
+
   private users = signal<User[]>([
     {
       id: 1,
@@ -168,6 +171,15 @@ export class AuthService {
     this.saveUsersToStorage();
     this.saveUserToStorage(newUser);
 
+    // Si l'utilisateur s'inscrit en tant que médecin, créer automatiquement son profil médecin
+    if (newUser.role === 'doctor') {
+      try {
+        await this.createDoctorProfile(newUser);
+      } catch (error) {
+        console.error('Erreur lors de la création du profil médecin:', error);
+      }
+    }
+
     return { success: true, user: newUser };
   }
 
@@ -277,5 +289,29 @@ export class AuthService {
   getToken(): string | null {
     const user = this.currentUser();
     return user ? `mock-token-${user.id}-${Date.now()}` : null;
+  }
+
+  private async createDoctorProfile(user: User): Promise<void> {
+    const doctorData = {
+      userId: user.id,
+      speciality: 'Médecine générale', // Spécialité par défaut
+      licenseNumber: `LIC${user.id}${Date.now()}`, // Numéro de licence généré
+      experience: 0, // Nouveau médecin
+      consultationFee: 50, // Tarif par défaut
+      bio: `Médecin généraliste récemment inscrit sur Doctolib.`,
+      education: ['Formation médicale'],
+      languages: ['Français'],
+      workingHours: {
+        monday: [{ start: '09:00', end: '17:00', isAvailable: true }],
+        tuesday: [{ start: '09:00', end: '17:00', isAvailable: true }],
+        wednesday: [{ start: '09:00', end: '17:00', isAvailable: true }],
+        thursday: [{ start: '09:00', end: '17:00', isAvailable: true }],
+        friday: [{ start: '09:00', end: '17:00', isAvailable: true }],
+        saturday: [],
+        sunday: [],
+      },
+    };
+
+    await this.doctorService.createDoctor(doctorData, user);
   }
 }

@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { DoctorService } from '../../../doctors/services/doctor.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { CreateDoctorRequest } from '../../../doctors/models/doctor.model';
+import { User } from '../../../auth/models/user.model';
 
 @Component({
   selector: 'app-doctor-creation',
@@ -391,7 +392,19 @@ export class DoctorCreationComponent {
           },
         };
 
-        await this.doctorService.createDoctor(doctorData);
+        // Récupérer les données utilisateur depuis localStorage
+        const savedUsers = localStorage.getItem('doctolib_users');
+        if (!savedUsers) {
+          throw new Error('Données utilisateurs non trouvées');
+        }
+        const users = JSON.parse(savedUsers);
+        const user = users.find((u: User) => u.id === doctorData.userId);
+
+        if (!user) {
+          throw new Error('Utilisateur non trouvé');
+        }
+
+        await this.doctorService.createDoctor(doctorData, user);
 
         this.successMessage.set('Médecin créé avec succès !');
 
