@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
-  appName: 'Doctolib App',
+  appName: 'final-project-angular',
   version: '1.0.0',
   features: {
     enableNotifications: true,
