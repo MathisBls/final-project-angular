@@ -95,7 +95,7 @@ cd final-project-angular
 npm install
 
 # Démarrer le serveur de développement
-ng serve
+npm start
 
 # L'application sera accessible sur http://localhost:4200
 ```
