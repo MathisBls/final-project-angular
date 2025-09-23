@@ -241,12 +241,6 @@ interface PatientSummary {
                         >
                           Historique
                         </button>
-                        <button
-                          (click)="scheduleAppointment(patient.patientId)"
-                          class="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
-                        >
-                          Nouveau RDV
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -278,6 +272,187 @@ interface PatientSummary {
           </div>
         }
       </div>
+
+      <!-- Modal Historique -->
+      @if (showHistoryModal()) {
+        <div
+          class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+          (click)="closeHistoryModal()"
+          (keydown.escape)="closeHistoryModal()"
+          tabindex="0"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white"
+            (click)="$event.stopPropagation()"
+            (keydown.enter)="$event.stopPropagation()"
+            (keydown.space)="$event.stopPropagation()"
+            tabindex="0"
+          >
+            <div class="mt-3">
+              <!-- En-tête de la modal -->
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Historique des rendez-vous
+                </h3>
+                <button
+                  (click)="closeHistoryModal()"
+                  class="text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    class="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Informations du patient -->
+              @if (selectedPatient()) {
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                  <div class="flex items-center">
+                    <div
+                      class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4"
+                    >
+                      <span class="text-lg font-bold text-blue-600">
+                        {{ selectedPatient()!.patient.user.firstName.charAt(0)
+                        }}{{
+                          selectedPatient()!.patient.user.lastName.charAt(0)
+                        }}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 class="text-lg font-semibold text-gray-900">
+                        {{ selectedPatient()!.patient.user.firstName }}
+                        {{ selectedPatient()!.patient.user.lastName }}
+                      </h4>
+                      <p class="text-gray-600">
+                        {{ selectedPatient()!.patient.user.email }}
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        {{ selectedPatient()!.patient.user.phone }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Liste des rendez-vous -->
+              <div class="max-h-96 overflow-y-auto">
+                @if (patientHistory().length > 0) {
+                  <div class="space-y-4">
+                    @for (
+                      appointment of patientHistory();
+                      track appointment.id
+                    ) {
+                      <div class="border rounded-lg p-4 hover:bg-gray-50">
+                        <div class="flex justify-between items-start mb-2">
+                          <div>
+                            <h5 class="font-semibold text-gray-900">
+                              {{ appointment.date | date: 'dd/MM/yyyy' }} à
+                              {{ appointment.time }}
+                            </h5>
+                            <p class="text-sm text-gray-600">
+                              {{ appointment.reason }}
+                            </p>
+                          </div>
+                          <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                            [class.bg-yellow-100]="
+                              appointment.status === 'scheduled'
+                            "
+                            [class.text-yellow-800]="
+                              appointment.status === 'scheduled'
+                            "
+                            [class.bg-green-100]="
+                              appointment.status === 'confirmed'
+                            "
+                            [class.text-green-800]="
+                              appointment.status === 'confirmed'
+                            "
+                            [class.bg-blue-100]="
+                              appointment.status === 'completed'
+                            "
+                            [class.text-blue-800]="
+                              appointment.status === 'completed'
+                            "
+                            [class.bg-red-100]="
+                              appointment.status === 'cancelled'
+                            "
+                            [class.text-red-800]="
+                              appointment.status === 'cancelled'
+                            "
+                          >
+                            {{ getStatusLabel(appointment.status) }}
+                          </span>
+                        </div>
+
+                        @if (appointment.symptoms) {
+                          <div class="mt-2">
+                            <p class="text-sm text-gray-600">
+                              <strong>Symptômes :</strong>
+                              {{ appointment.symptoms }}
+                            </p>
+                          </div>
+                        }
+
+                        @if (appointment.notes) {
+                          <div class="mt-2">
+                            <p class="text-sm text-gray-600">
+                              <strong>Notes :</strong> {{ appointment.notes }}
+                            </p>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="text-center py-8">
+                    <svg
+                      class="mx-auto h-12 w-12 text-gray-400 mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      ></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                      Aucun rendez-vous
+                    </h3>
+                    <p class="text-gray-500">
+                      Ce patient n'a pas encore de rendez-vous.
+                    </p>
+                  </div>
+                }
+              </div>
+
+              <!-- Bouton de fermeture -->
+              <div class="mt-6 flex justify-end">
+                <button
+                  (click)="closeHistoryModal()"
+                  class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [],
@@ -287,7 +462,11 @@ export class DoctorPatientsComponent implements OnInit {
   private authService = inject(AuthService);
 
   patients = signal<PatientSummary[]>([]);
+  allAppointments = signal<Appointment[]>([]);
   isLoading = signal(false);
+  showHistoryModal = signal(false);
+  selectedPatient = signal<PatientSummary | null>(null);
+  patientHistory = signal<Appointment[]>([]);
 
   ngOnInit() {
     this.loadPatients();
@@ -300,6 +479,9 @@ export class DoctorPatientsComponent implements OnInit {
       if (currentUser) {
         const allAppointments =
           await this.appointmentService.getAllAppointments();
+
+        this.allAppointments.set(allAppointments);
+
         const doctorAppointments = allAppointments.filter(
           (appointment) => appointment.doctor.user.id === currentUser.id,
         );
@@ -324,17 +506,21 @@ export class DoctorPatientsComponent implements OnInit {
           const patientSummary = patientMap.get(patientId)!;
           patientSummary.totalAppointments++;
 
-          // Trouver le dernier rendez-vous
-          if (
-            !patientSummary.lastAppointment ||
-            appointment.date > patientSummary.lastAppointment
-          ) {
-            patientSummary.lastAppointment = appointment.date;
+          // Trouver le dernier rendez-vous (passé uniquement)
+          const appointmentDate = new Date(appointment.date);
+          const now = new Date();
+
+          // Seulement les rendez-vous passés pour le "dernier RDV"
+          if (appointmentDate < now) {
+            if (
+              !patientSummary.lastAppointment ||
+              appointmentDate > patientSummary.lastAppointment
+            ) {
+              patientSummary.lastAppointment = appointmentDate;
+            }
           }
 
           // Trouver le prochain rendez-vous (futur)
-          const appointmentDate = new Date(appointment.date);
-          const now = new Date();
           if (appointmentDate > now) {
             if (
               !patientSummary.nextAppointment ||
@@ -376,12 +562,47 @@ export class DoctorPatientsComponent implements OnInit {
   }
 
   viewPatientHistory(patientId: number) {
-    // TODO: Implémenter la vue de l'historique du patient
-    console.log('Voir historique patient:', patientId);
+    const patient = this.patients().find((p) => p.patientId === patientId);
+    if (patient) {
+      const history = this.getPatientAppointmentHistory(patientId);
+
+      this.selectedPatient.set(patient);
+      this.patientHistory.set(history);
+      this.showHistoryModal.set(true);
+    }
   }
 
-  scheduleAppointment(patientId: number) {
-    // TODO: Implémenter la prise de nouveau rendez-vous
-    console.log('Programmer nouveau RDV pour patient:', patientId);
+  closeHistoryModal() {
+    this.showHistoryModal.set(false);
+    this.selectedPatient.set(null);
+    this.patientHistory.set([]);
+  }
+
+  private getPatientAppointmentHistory(patientId: number): Appointment[] {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return [];
+
+    return this.allAppointments()
+      .filter(
+        (appointment) =>
+          appointment.patientId === patientId &&
+          appointment.doctor.user.id === currentUser.id,
+      )
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'scheduled':
+        return 'Programmé';
+      case 'confirmed':
+        return 'Confirmé';
+      case 'completed':
+        return 'Terminé';
+      case 'cancelled':
+        return 'Annulé';
+      default:
+        return status;
+    }
   }
 }
