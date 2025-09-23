@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DoctorService } from '../../services/doctor.service';
 import { Doctor } from '../../models/doctor.model';
+import { PricePipe, StatusLabelPipe } from '../../../../shared/pipes';
 
 @Component({
   selector: 'app-doctor-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PricePipe, StatusLabelPipe],
   template: `
     <div class="min-h-screen bg-gray-50 py-8">
       <div class="container mx-auto px-4">
@@ -79,7 +80,7 @@ import { Doctor } from '../../models/doctor.model';
                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
                       ></path>
                     </svg>
-                    {{ doctor.consultationFee }}€ la consultation
+                    {{ doctor.consultationFee | price }} la consultation
                   </div>
                   <div class="flex items-center text-sm text-gray-600">
                     <svg
@@ -107,7 +108,9 @@ import { Doctor } from '../../models/doctor.model';
                     [class.bg-red-100]="!doctor.isAvailable"
                     [class.text-red-800]="!doctor.isAvailable"
                   >
-                    {{ doctor.isAvailable ? 'Disponible' : 'Indisponible' }}
+                    {{
+                      (doctor.isAvailable ? 'active' : 'inactive') | statusLabel
+                    }}
                   </span>
                   <a
                     [routerLink]="['/doctors', doctor.id]"

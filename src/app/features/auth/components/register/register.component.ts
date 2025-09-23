@@ -8,11 +8,21 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import {
+  AutoFocusDirective,
+  PhoneFormatDirective,
+} from '../../../../shared/directives';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    AutoFocusDirective,
+    PhoneFormatDirective,
+  ],
   template: `
     <div
       class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
@@ -77,6 +87,7 @@ import { AuthService } from '../../services/auth.service';
                   id="firstName"
                   type="text"
                   formControlName="firstName"
+                  [appAutoFocus]="true"
                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Prénom"
                   [class.border-red-300]="
@@ -150,6 +161,7 @@ import { AuthService } from '../../services/auth.service';
                 id="phone"
                 type="tel"
                 formControlName="phone"
+                appPhoneFormat
                 class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="+33 1 23 45 67 89"
                 [class.border-red-300]="

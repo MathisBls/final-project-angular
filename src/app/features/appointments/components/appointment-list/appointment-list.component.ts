@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { AppointmentService } from '../../services/appointment.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { Appointment } from '../../models/appointment.model';
+import { PricePipe, StatusLabelPipe } from '../../../../shared/pipes';
 
 @Component({
   selector: 'app-appointment-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PricePipe, StatusLabelPipe],
   template: `
     <div class="min-h-screen bg-gray-50 py-8">
       <div class="container mx-auto px-4">
@@ -153,7 +154,7 @@ import { Appointment } from '../../models/appointment.model';
                               d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
                             ></path>
                           </svg>
-                          {{ appointment.doctor.consultationFee }}€
+                          {{ appointment.doctor.consultationFee | price }}
                         </div>
                         <div class="flex items-center">
                           <svg
@@ -208,15 +209,7 @@ import { Appointment } from '../../models/appointment.model';
                           appointment.status === 'cancelled'
                         "
                       >
-                        @if (appointment.status === 'scheduled') {
-                          Programmé
-                        } @else if (appointment.status === 'confirmed') {
-                          Confirmé
-                        } @else if (appointment.status === 'completed') {
-                          Terminé
-                        } @else if (appointment.status === 'cancelled') {
-                          Annulé
-                        }
+                        {{ appointment.status | statusLabel }}
                       </span>
 
                       <div class="flex space-x-2">
