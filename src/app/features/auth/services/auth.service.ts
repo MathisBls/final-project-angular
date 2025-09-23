@@ -56,6 +56,10 @@ export class AuthService {
   constructor() {
     this.loadUsersFromStorage();
     this.loadUserFromStorage();
+
+    if (!localStorage.getItem('doctolib_users')) {
+      this.saveUsersToStorage();
+    }
   }
 
   private loadUsersFromStorage() {

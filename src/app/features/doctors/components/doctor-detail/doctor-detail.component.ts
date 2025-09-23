@@ -59,9 +59,7 @@ import { AppointmentSlot } from '../../../appointments/models/appointment.model'
                       </svg>
                     }
                     <span class="ml-2 text-sm text-gray-600">
-                      {{ doctor()?.rating }}/5 ({{
-                        doctor()?.totalReviews
-                      }}
+                      {{ doctor()?.rating }}/5 ({{ doctor()?.totalReviews }}
                       avis)
                     </span>
                   </div>
@@ -374,8 +372,12 @@ export class DoctorDetailComponent implements OnInit {
         setTimeout(() => {
           this.router.navigate(['/appointments']);
         }, 2000);
-      } catch {
-        this.errorMessage.set('Erreur lors de la réservation du rendez-vous');
+      } catch (error) {
+        console.error('Erreur de réservation:', error);
+        this.errorMessage.set(
+          'Erreur lors de la réservation du rendez-vous: ' +
+            (error as Error)?.message || 'Erreur inconnue',
+        );
       } finally {
         this.isLoading.set(false);
       }

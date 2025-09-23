@@ -123,7 +123,7 @@ import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
               <!-- Navigation pour utilisateur non connecté -->
               <a
                 routerLink="/auth/login"
-                class="hover:text-blue-200 transition-colors"
+                class="hover:text-blue-200 transition-colors px-3 py-2 rounded-md"
               >
                 Connexion
               </a>

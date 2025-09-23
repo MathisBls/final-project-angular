@@ -148,6 +148,11 @@ export class DoctorService {
 
   constructor() {
     this.loadDoctorsFromStorage();
+
+    // Ensure default doctors are saved to localStorage if not already present
+    if (!localStorage.getItem('doctolib_doctors')) {
+      this.saveDoctorsToStorage();
+    }
   }
 
   private delay(ms: number): Promise<void> {
