@@ -212,9 +212,6 @@ export class DoctorManagementComponent implements OnInit {
   }
 
   viewDoctorProfile(doctorId: number) {
-    console.log('Voir profil du médecin:', doctorId);
-    // TODO: Implémenter la navigation vers le profil du médecin
-    // Pour l'instant, on peut rediriger vers la page de détail du médecin
     window.open(`/doctors/${doctorId}`, '_blank');
   }
 
@@ -231,17 +228,12 @@ export class DoctorManagementComponent implements OnInit {
           },
         });
 
-        // Mettre à jour immédiatement l'affichage
         this.doctors.update((doctors) =>
           doctors.map((d) =>
             d.id === doctorId
               ? { ...d, user: { ...d.user, isActive: newStatus } }
               : d,
           ),
-        );
-
-        console.log(
-          `Médecin ${doctor.user.firstName} ${doctor.user.lastName} ${newStatus ? 'activé' : 'désactivé'} avec succès`,
         );
       }
     } catch (error) {

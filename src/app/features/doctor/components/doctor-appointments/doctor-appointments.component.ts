@@ -313,14 +313,9 @@ export class DoctorAppointmentsComponent implements OnInit {
         const allAppointments =
           await this.appointmentService.getAllAppointments();
 
-        // Filtrer par l'ID du médecin (pas l'ID utilisateur)
         const doctorAppointments = allAppointments.filter(
           (appointment) => appointment.doctor.user.id === currentUser.id,
         );
-
-        console.log('Current user ID:', currentUser.id);
-        console.log('All appointments:', allAppointments);
-        console.log('Doctor appointments:', doctorAppointments);
 
         this.appointments.set(doctorAppointments);
         this.applyFilter();

@@ -26,7 +26,6 @@ import { Appointment } from '../../../appointments/models/appointment.model';
             ></div>
           </div>
         } @else {
-          <!-- Statistiques -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-6">
               <div class="flex items-center">
@@ -139,7 +138,6 @@ import { Appointment } from '../../../appointments/models/appointment.model';
             </div>
           </div>
 
-          <!-- Liste des patients -->
           <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
               <h3 class="text-lg font-semibold text-gray-900">
@@ -415,17 +413,12 @@ export class PatientManagementComponent implements OnInit {
           },
         });
 
-        // Mettre à jour immédiatement l'affichage
         this.patients.update((patients) =>
           patients.map((p) =>
             p.id === patientId
               ? { ...p, user: { ...p.user, isActive: newStatus } }
               : p,
           ),
-        );
-
-        console.log(
-          `Patient ${patient.user.firstName} ${patient.user.lastName} ${newStatus ? 'activé' : 'désactivé'} avec succès`,
         );
       }
     } catch (error) {

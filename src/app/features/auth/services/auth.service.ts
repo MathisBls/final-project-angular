@@ -171,7 +171,6 @@ export class AuthService {
     this.saveUsersToStorage();
     this.saveUserToStorage(newUser);
 
-    // Si l'utilisateur s'inscrit en tant que médecin, créer automatiquement son profil médecin
     if (newUser.role === 'doctor') {
       try {
         await this.createDoctorProfile(newUser);
@@ -294,10 +293,10 @@ export class AuthService {
   private async createDoctorProfile(user: User): Promise<void> {
     const doctorData = {
       userId: user.id,
-      speciality: 'Médecine générale', // Spécialité par défaut
-      licenseNumber: `LIC${user.id}${Date.now()}`, // Numéro de licence généré
-      experience: 0, // Nouveau médecin
-      consultationFee: 50, // Tarif par défaut
+      speciality: 'Médecine générale',
+      licenseNumber: `LIC${user.id}${Date.now()}`,
+      experience: 0,
+      consultationFee: 50,
       bio: `Médecin généraliste récemment inscrit sur Doctolib.`,
       education: ['Formation médicale'],
       languages: ['Français'],

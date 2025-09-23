@@ -278,7 +278,6 @@ export class DoctorService {
       }),
     );
 
-    // Mettre à jour aussi dans localStorage si c'est une mise à jour de l'utilisateur
     if (updates.user) {
       try {
         const savedUsers = localStorage.getItem('doctolib_users');

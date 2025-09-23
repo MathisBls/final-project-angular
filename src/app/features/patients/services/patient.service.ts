@@ -28,7 +28,6 @@ export class PatientService {
       const appointments = await this.appointmentService.getAllAppointments();
       const allUsers = await this.authService.getAllUsers();
 
-      // Récupérer tous les patients uniques depuis les rendez-vous
       const patientMap = new Map<number, Patient>();
 
       appointments.forEach((appointment) => {
@@ -37,17 +36,15 @@ export class PatientService {
         }
       });
 
-      // Ajouter aussi les utilisateurs avec le rôle 'patient' qui n'ont pas encore de rendez-vous
       const patientUsers = allUsers.filter((user) => user.role === 'patient');
 
       patientUsers.forEach((user) => {
         if (!patientMap.has(user.id)) {
-          // Créer un profil patient basique pour les utilisateurs sans rendez-vous
           const basicPatient: Patient = {
             id: user.id,
             userId: user.id,
             user: user,
-            dateOfBirth: new Date('1990-01-01'), // Date par défaut
+            dateOfBirth: new Date('1990-01-01'),
             gender: 'other',
             address: {
               street: 'Non renseigné',
@@ -145,7 +142,6 @@ export class PatientService {
       }),
     );
 
-    // Mettre à jour aussi dans localStorage si c'est une mise à jour de l'utilisateur
     if (updates.user) {
       try {
         const savedUsers = localStorage.getItem('doctolib_users');

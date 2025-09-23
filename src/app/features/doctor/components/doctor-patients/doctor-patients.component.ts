@@ -32,7 +32,6 @@ interface PatientSummary {
             ></div>
           </div>
         } @else {
-          <!-- Statistiques -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-6">
               <div class="flex items-center">
@@ -117,7 +116,6 @@ interface PatientSummary {
             </div>
           </div>
 
-          <!-- Liste des patients -->
           <div class="space-y-4">
             @if (patients().length > 0) {
               @for (patient of patients(); track patient.patientId) {
@@ -125,7 +123,6 @@ interface PatientSummary {
                   <div
                     class="flex flex-col md:flex-row md:items-center md:justify-between"
                   >
-                    <!-- Informations du patient -->
                     <div class="flex-1">
                       <div class="flex items-center mb-4">
                         <div
@@ -218,7 +215,6 @@ interface PatientSummary {
                       }
                     </div>
 
-                    <!-- Actions -->
                     <div class="flex flex-col items-end space-y-3 mt-4 md:mt-0">
                       <span
                         class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
@@ -273,7 +269,6 @@ interface PatientSummary {
         }
       </div>
 
-      <!-- Modal Historique -->
       @if (showHistoryModal()) {
         <div
           class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
@@ -291,7 +286,6 @@ interface PatientSummary {
             tabindex="0"
           >
             <div class="mt-3">
-              <!-- En-tête de la modal -->
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">
                   Historique des rendez-vous
@@ -316,7 +310,6 @@ interface PatientSummary {
                 </button>
               </div>
 
-              <!-- Informations du patient -->
               @if (selectedPatient()) {
                 <div class="mb-6 p-4 bg-blue-50 rounded-lg">
                   <div class="flex items-center">
@@ -346,7 +339,6 @@ interface PatientSummary {
                 </div>
               }
 
-              <!-- Liste des rendez-vous -->
               <div class="max-h-96 overflow-y-auto">
                 @if (patientHistory().length > 0) {
                   <div class="space-y-4">
@@ -440,7 +432,6 @@ interface PatientSummary {
                 }
               </div>
 
-              <!-- Bouton de fermeture -->
               <div class="mt-6 flex justify-end">
                 <button
                   (click)="closeHistoryModal()"
@@ -486,7 +477,6 @@ export class DoctorPatientsComponent implements OnInit {
           (appointment) => appointment.doctor.user.id === currentUser.id,
         );
 
-        // Grouper les rendez-vous par patient
         const patientMap = new Map<number, PatientSummary>();
 
         doctorAppointments.forEach((appointment) => {
@@ -506,11 +496,9 @@ export class DoctorPatientsComponent implements OnInit {
           const patientSummary = patientMap.get(patientId)!;
           patientSummary.totalAppointments++;
 
-          // Trouver le dernier rendez-vous (passé uniquement)
           const appointmentDate = new Date(appointment.date);
           const now = new Date();
 
-          // Seulement les rendez-vous passés pour le "dernier RDV"
           if (appointmentDate < now) {
             if (
               !patientSummary.lastAppointment ||
@@ -520,7 +508,6 @@ export class DoctorPatientsComponent implements OnInit {
             }
           }
 
-          // Trouver le prochain rendez-vous (futur)
           if (appointmentDate > now) {
             if (
               !patientSummary.nextAppointment ||

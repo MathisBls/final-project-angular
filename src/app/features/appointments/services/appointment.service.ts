@@ -28,11 +28,9 @@ export class AppointmentService {
       const savedAppointments = localStorage.getItem('doctolib_appointments');
       if (savedAppointments) {
         const appointments = JSON.parse(savedAppointments);
-        // Marquer automatiquement les rendez-vous passés comme terminés
         const updatedAppointments =
           this.markPastAppointmentsAsCompleted(appointments);
         this.appointments.set(updatedAppointments);
-        // Sauvegarder les changements si nécessaire
         if (
           updatedAppointments.length !== appointments.length ||
           updatedAppointments.some(
@@ -65,7 +63,6 @@ export class AppointmentService {
         0,
       );
 
-      // Si le rendez-vous est passé et n'est pas déjà terminé ou annulé
       if (
         appointmentDateTime < now &&
         appointment.status !== 'completed' &&
@@ -98,7 +95,6 @@ export class AppointmentService {
   async getAllAppointments(): Promise<Appointment[]> {
     await this.delay(300);
     const appointments = this.appointments();
-    // Marquer les rendez-vous passés comme terminés
     const updatedAppointments =
       this.markPastAppointmentsAsCompleted(appointments);
     if (
@@ -160,7 +156,6 @@ export class AppointmentService {
   ): Promise<Appointment> {
     await this.delay(500);
 
-    // Récupérer les données réelles du patient et du médecin depuis localStorage
     const savedUsers = localStorage.getItem('doctolib_users');
     const savedDoctors = localStorage.getItem('doctolib_doctors');
 
@@ -182,12 +177,11 @@ export class AppointmentService {
       throw new Error('Patient ou médecin non trouvé');
     }
 
-    // Créer l'objet patient avec les données réelles
     const patient = {
       id: appointmentData.patientId,
       userId: patientUser.id,
       user: patientUser,
-      dateOfBirth: new Date('1985-06-15'), // Valeur par défaut
+      dateOfBirth: new Date('1985-06-15'),
       gender: 'female' as const,
       address: {
         street: '123 Rue de la Paix',

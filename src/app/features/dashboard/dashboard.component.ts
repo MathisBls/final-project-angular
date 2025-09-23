@@ -13,7 +13,6 @@ import { Appointment } from '../appointments/models/appointment.model';
   template: `
     <div class="min-h-screen bg-gray-50 py-8">
       <div class="container mx-auto px-4">
-        <!-- En-tête du dashboard -->
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-900 mb-2">
             Bienvenue, {{ currentUser()?.firstName }}
@@ -30,7 +29,6 @@ import { Appointment } from '../appointments/models/appointment.model';
           </p>
         </div>
 
-        <!-- Statistiques rapides -->
         @if (isLoading()) {
           <div class="flex justify-center py-12">
             <div
@@ -385,9 +383,7 @@ import { Appointment } from '../appointments/models/appointment.model';
           </div>
         }
 
-        <!-- Actions rapides -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Actions selon le rôle -->
           @if (currentUser()?.role === 'patient') {
             <div class="bg-white rounded-lg shadow p-6">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">
@@ -597,7 +593,6 @@ import { Appointment } from '../appointments/models/appointment.model';
             </div>
           }
 
-          <!-- Rendez-vous récents -->
           <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
               Rendez-vous récents
@@ -665,7 +660,6 @@ export class DashboardComponent implements OnInit {
   allAppointments = signal<Appointment[]>([]);
   isLoading = signal(true);
 
-  // Données calculées pour le dashboard
   upcomingAppointments = signal(0);
   pastAppointments = signal(0);
   consultedDoctors = signal(0);
@@ -733,11 +727,9 @@ export class DashboardComponent implements OnInit {
     this.upcomingAppointments.set(upcoming.length);
     this.pastAppointments.set(past.length);
 
-    // Médecins consultés (unique)
     const uniqueDoctors = new Set(userAppointments.map((app) => app.doctorId));
     this.consultedDoctors.set(uniqueDoctors.size);
 
-    // Prochain RDV
     const nextAppointment = upcoming.sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     )[0];
@@ -779,16 +771,13 @@ export class DashboardComponent implements OnInit {
 
     this.todayAppointments.set(todayAppointments.length);
 
-    // Patients uniques
     const uniquePatients = new Set(
       doctorAppointments.map((app) => app.patientId),
     );
     this.totalPatients.set(uniquePatients.size);
 
-    // Note moyenne (simulée pour l'instant)
     this.averageRating.set(4.8);
 
-    // Revenus du mois
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     const monthlyAppointments = doctorAppointments.filter((app) => {
@@ -824,7 +813,6 @@ export class DashboardComponent implements OnInit {
     });
     this.todayAppointments.set(todayAppointments.length);
 
-    // Revenus totaux
     const completedAppointments = appointments.filter(
       (app) => app.status === 'completed',
     );
